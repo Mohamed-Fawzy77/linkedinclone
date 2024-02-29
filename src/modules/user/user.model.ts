@@ -5,7 +5,6 @@ import {
   Model,
   AutoIncrement,
   PrimaryKey,
-  AllowNull,
   DataType,
 } from 'sequelize-typescript';
 
@@ -22,13 +21,12 @@ export class User extends Model<User> {
   @Column
   email: string;
 
+  @Column
+  password: string;
+
   @Column({
     type: DataType.INTEGER,
     defaultValue: null,
   })
   age: number | null;
 }
-
-//createdAt, updatedAt, deletedAt
-//nosql => schemaless
-//sql => schema full
