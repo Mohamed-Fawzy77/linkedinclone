@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './modules/user/user.model';
@@ -11,11 +12,11 @@ const modules = [UserModule];
     ...modules,
     SequelizeModule.forRoot({
       dialect: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'linkedin',
+      host: process.env.DATABASE_HOST,
+      port: parseInt(process.env.PORT!),
+      username: process.env.DATABASE_USERNAME,
+      database: process.env.DATA_BASE,
+      password: process.env.DATABASE_PASSWORD,
       models,
     }),
   ],
