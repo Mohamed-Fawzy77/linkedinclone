@@ -25,11 +25,3 @@ module.exports = {
     dialect: 'mysql',
   },
 };
-
-console.log({
-  username: process.env.DATABASE_USERNAME,
-  database: process.env.DATABASE_USERNAME,
-  host: process.env.DATABASE_HOST,
-  dialect: 'mysql',
-  password: null,
-});

@@ -2,15 +2,23 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './user.model';
 import { SignUpDto } from './dtos/signup.dto';
+import { SignInDto } from './dtos/signin.tdo';
 import * as bcrypt from 'bcrypt';
+import { UpdateUserDto } from './dtos/updateuser.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
+  constructor(private jwtService: JwtService) {}
+  async getAllUsers() {
+    const users = await User.findAll();
+    return users;
+  }
   async getUser(id: number) {
     const user = await User.findByPk(id);
 
     if (!user) {
-      return 'no user found';
+      return 'User not found';
     }
 
     const response: any = {
@@ -31,7 +39,7 @@ export class UserService {
           email: signUpDto.email,
         },
       });
-      if (user) throw new Error('User already exists');
+      if (user) return 'User already exists';
 
       const hashPassword = await bcrypt.hash(signUpDto.password, 5);
 
@@ -45,23 +53,54 @@ export class UserService {
     }
   }
 
-  async signIn(signInDto: SignUpDto) {
+  async signIn(signInDto: SignInDto) {
     try {
       const user = await User.findOne({
         where: {
           email: signInDto.email,
         },
       });
-      if (!user) throw new Error('User not found');
+      if (!user) return 'User not found';
+
+      const token = await this.jwtService.signAsync(
+        {
+          email: user.email,
+          id: user.id,
+          name: user.name,
+        },
+        { secret: process.env.JWT_SECRET },
+      );
 
       const isMatch = await bcrypt.compare(signInDto.password, user.password);
 
       if (isMatch && user.email === signInDto.email)
-        return 'Signed Up successfully';
+        return { message: 'Signed Up successfully', token };
 
-      throw new Error('Wrong password or email');
+      return 'Wrong password or email';
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async updateUser(id: number, updateUserDto: UpdateUserDto) {
+    const user = await User.findByPk(id);
+
+    if (!user) return 'User not found';
+
+    const hashPassword = await bcrypt.hash(updateUserDto.password, 5);
+
+    await user.update({
+      ...updateUserDto,
+      password: hashPassword,
+    });
+    return 'updated successfully';
+  }
+
+  async deleteUser(id: number) {
+    const user = await User.findByPk(id);
+
+    if (!user) return 'User not found';
+    await user.destroy();
+    return 'deleted successfully';
   }
 }

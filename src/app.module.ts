@@ -3,9 +3,11 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './modules/user/user.model';
 import { UserModule } from './modules/user/user.module';
+import { PostModule } from './modules/post/post.module';
+import { Post } from './modules/post/post.model';
 
-const models = [User];
-const modules = [UserModule];
+const models = [User, Post];
+const modules = [UserModule, PostModule];
 
 @Module({
   imports: [
