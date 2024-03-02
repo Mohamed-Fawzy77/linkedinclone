@@ -6,10 +6,11 @@ import { SignInDto } from './dtos/signin.tdo';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dtos/updateuser.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class UserService {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService, private sequelize: Sequelize) {}
   async getAllUsers() {
     const users = await User.findAll();
     return users;
@@ -89,11 +90,75 @@ export class UserService {
 
     const hashPassword = await bcrypt.hash(updateUserDto.password, 5);
 
-    await user.update({
-      ...updateUserDto,
-      password: hashPassword,
-    });
+    // await user.update({
+    //   ...updateUserDto,
+    //   password: hashPassword,
+    // });
     return 'updated successfully';
+  }
+
+  async addAgeToUsers(
+    firstUserId: number,
+    secondUserId: number,
+    amount: number,
+  ) {
+    const transaction = await this.sequelize.transaction();
+
+    try {
+      // const firstUser = await User.findByPk(firstUserId);
+
+      // const secondUser = await User.findByPk(secondUserId);
+
+      const firstUser = await User.findOne({
+        where: {
+          id: firstUserId,
+        },
+        transaction,
+      });
+
+      const secondUser = await User.findOne({
+        where: {
+          id: secondUserId,
+        },
+        transaction,
+      });
+
+      if (!firstUser || !secondUser) {
+        await transaction.commit();
+        return 'User not found';
+      }
+
+      await User.update(
+        {
+          age: firstUser.age + amount,
+        },
+        {
+          where: {
+            id: firstUserId,
+          },
+          transaction,
+        },
+      );
+
+      await User.update(
+        {
+          age: secondUser.age - amount,
+        },
+        {
+          where: {
+            id: secondUserId,
+          },
+          transaction,
+        },
+      );
+
+      await transaction.commit();
+
+      return 'Age added successfully';
+    } catch (error) {
+      await transaction.rollback();
+      return error;
+    }
   }
 
   async deleteUser(id: number) {
@@ -104,3 +169,6 @@ export class UserService {
     return 'deleted successfully';
   }
 }
+
+// linked in clone
+// used transaction to ensure data consistency

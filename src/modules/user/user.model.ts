@@ -28,7 +28,7 @@ export class User extends Model<User> {
     type: DataType.INTEGER,
     defaultValue: null,
   })
-  age: number | null;
+  age: number;
 }
 
 //createdAt, updatedAt, deletedAt

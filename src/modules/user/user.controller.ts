@@ -8,11 +8,24 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignUpDto } from './dtos/signup.dto';
 import { UpdateUserDto } from './dtos/updateuser.dto';
 import { SignInDto } from './dtos/signin.tdo';
+import { IsNumber, IsInt } from 'class-validator';
+
+export class AgeDto {
+  @IsInt()
+  firstUserId: number;
+
+  @IsInt()
+  secondUserId: number;
+
+  @IsNumber()
+  amount: number;
+}
 
 @Controller('/users')
 export class UserController {
@@ -49,5 +62,14 @@ export class UserController {
   @Delete('/delete/:id')
   deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
+  }
+
+  @Patch('/age')
+  updateAge(@Body() ageDto: AgeDto) {
+    return this.userService.addAgeToUsers(
+      ageDto.firstUserId,
+      ageDto.secondUserId,
+      ageDto.amount,
+    );
   }
 }
