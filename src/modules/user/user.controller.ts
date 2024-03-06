@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -16,6 +17,8 @@ import { SignInDto } from './dtos/signin.tdo';
 // import { Roles } from './decorator/role.decorator';
 import { AuthGuard } from './guard/auth.guard';
 import { RolesGuard } from './guard/roles.guard';
+import { AuthUser } from 'src/decorators/auth-user.decorator';
+import { User } from './user.model';
 
 @Controller('/users')
 export class UserController {
@@ -43,12 +46,9 @@ export class UserController {
     return this.userService.signIn(signInDto);
   }
 
-  @Patch('/update/:id')
-  updateUser(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.userService.updateUser(id, updateUserDto);
+  @Patch('/update')
+  updateUser(@Body() updateUserDto: UpdateUserDto, @AuthUser() user: User) {
+    return this.userService.updateUser(user, updateUserDto);
   }
 
   @Delete('/delete/:id')

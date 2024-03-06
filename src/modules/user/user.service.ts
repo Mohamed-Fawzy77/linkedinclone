@@ -81,8 +81,8 @@ export class UserService {
     }
   }
 
-  async updateUser(id: number, updateUserDto: UpdateUserDto) {
-    const user = await User.findByPk(id);
+  async updateUser(authUser: User, updateUserDto: UpdateUserDto) {
+    const user = await User.findByPk(authUser.id);
 
     if (!user) return 'User not found';
 
