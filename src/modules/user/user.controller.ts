@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   Body,
   Controller,
@@ -8,11 +7,15 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignUpDto } from './dtos/signup.dto';
 import { UpdateUserDto } from './dtos/updateuser.dto';
 import { SignInDto } from './dtos/signin.tdo';
+// import { Roles } from './decorator/role.decorator';
+import { AuthGuard } from './guard/auth.guard';
+import { RolesGuard } from './guard/roles.guard';
 
 @Controller('/users')
 export class UserController {
@@ -29,6 +32,8 @@ export class UserController {
   }
 
   @Post('/signup')
+  // @Roles(['user', 'admin'])
+  @UseGuards(AuthGuard, RolesGuard)
   create(@Body() signUpDto: SignUpDto) {
     return this.userService.signUp(signUpDto);
   }

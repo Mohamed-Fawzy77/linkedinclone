@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { User } from './user.model';
 import { SignUpDto } from './dtos/signup.dto';
@@ -88,6 +87,13 @@ export class UserService {
     if (!user) return 'User not found';
 
     const hashPassword = await bcrypt.hash(updateUserDto.password, 5);
+
+    const checkUserExist = await User.findOne({
+      where: {
+        email: updateUserDto.email,
+      },
+    });
+    if (checkUserExist) return 'User already exists';
 
     await user.update({
       ...updateUserDto,
